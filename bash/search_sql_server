@@ -1,0 +1,44 @@
+#!/bin/bash
+
+if [ -z "$1" ]
+then
+    echo ""
+    echo "    Usage: $0 QUERY [DB_NAME_LIKE] [DB_USER]"
+    echo ""
+    echo ""
+    echo "    Example:"
+    echo ""
+    echo "    Select distinct records from field foo in table bar in all databases"
+    echo "    that begin with 'foba':"
+    echo ""
+    echo "    $0 'SELECT DISTINCT foo FROM bar' 'foba%'"
+    echo ""
+    echo ""
+
+    exit 255
+fi
+
+if [ -z ${3} ]
+then
+    USER='root'
+else
+    USER='${3}'
+fi
+
+PASS_CORRECT=0
+while [ ${PASS_CORRECT} -eq 0 ]
+do
+    read -s -p "MySQL password: " DB_PASS; echo
+    PASS_TEST=$(mysql -u root -p${DB_PASS} -e 'SELECT 1;' 2>&1 | \
+                    grep -E 'ERROR 1045' | wc -l)
+    if [ ${PASS_TEST} -eq 0 ]
+    then
+        PASS_CORRECT=1
+    fi
+done
+
+for db in $(mysql -u ${USER} -p${DB_PASS} --skip-column-names -B \
+    -e "SHOW DATABASES LIKE '${2}%';")
+do
+    mysql -u ${USER} -p${DB_PASS} --skip-column-names -B -D ${db} -e "${1}"
+done | sort | uniq 
