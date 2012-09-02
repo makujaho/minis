@@ -14,8 +14,8 @@ HOST="localhost"
 IFS="|"
 declare -a HDDTEMP
 
-t=$(telnet ${HOST} ${PORT} 2>/dev/null | grep "dev/")
-if [ $(echo $t | wc -l) -eq 0 ]
+t=$(nc ${HOST} ${PORT})
+if [ $(echo ${t} | wc -l) -eq 0 ]
 then
     exit 255
 fi
