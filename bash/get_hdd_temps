@@ -1,0 +1,35 @@
+#!/bin/bash
+#############################################################################
+#                                                                           #
+# Script to get formatted hard disk temperatures from an hddtemp daemon     #
+#                                                                           #
+# Author: mkzero <info@linux-web-development.de>                            #
+#                                                                           #
+#############################################################################
+
+UNIT="C"
+PORT="7634"
+HOST="localhost"
+
+IFS="|"
+declare -a HDDTEMP
+
+t=$(telnet ${HOST} ${PORT} 2>/dev/null | grep "dev/")
+if [ $(echo $t | wc -l) -eq 0 ]
+then
+    exit 255
+fi
+
+HDDTEMP=($t)
+HDDCOUNT=$(echo -n ${t//[^|$UNIT|]/} | sed 's/|//g' | sed 's/ //g' | wc -m)
+
+unset IFS
+
+for i in $(seq 1 $HDDCOUNT)
+do
+    c=$((($i-1)*5))
+    echo "${HDDTEMP[$((1+$c))]} (${HDDTEMP[$((2+$c))]}) "\
+         "${HDDTEMP[$((3+$c))]} °$UNIT"
+done
+
+exit 0
