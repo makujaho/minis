@@ -1,0 +1,13 @@
+#!/bin/bash
+MPLAYEROPTIONS='' #-prefer-ipv4 -vo xv -ao alsa -af volnorm=1 -fs -cache 400000 -channels 2 -cache-min 0.01'
+
+# make a fifo for caching
+CACHE_FIFO="`mktemp ard.cache-fifo.XXXXXX`"
+rm -f ${CACHE_FIFO}
+mkfifo ${CACHE_FIFO}
+
+rtmpdump --swfhash "6c1be1765187eae0bc9af07d858fae59a0effd3c5b803d08db261ced2c5512bb" --swfsize "927444" -v -r  rtmp://cp108475.live.edgefcs.net/live/ard_1_800@15782 -q 2>/dev/null > $CACHE_FIFO &
+
+mplayer -really-quiet -stop-xscreensaver $MPLAYEROPTIONS $CACHE_FIFO 2>/dev/null
+
+rm -f ${CACHE_FIFO}
