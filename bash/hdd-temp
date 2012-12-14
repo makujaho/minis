@@ -1,0 +1,3 @@
+#!/bin/bash
+
+echo $(hddtemp /dev/sda | awk '{print $4};')
