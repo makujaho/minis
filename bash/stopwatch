@@ -1,0 +1,36 @@
+#!/bin/bash
+
+_stopwatch_control_c () {
+    echo ""
+    echo $_stopwatch_counter
+    echo ""
+    export _stopwatch_exit_code=1
+}
+
+stopwatch () {
+
+    trap _stopwatch_control_c SIGINT
+
+    export _stopwatch_exit_code=0
+    export _stopwatch_counter='0.0'
+
+    echo
+    tput sc
+
+    while :
+    do
+        if [ $_stopwatch_exit_code -eq 1 ]
+        then
+            break
+        fi
+
+        tput el
+        echo -n "$_stopwatch_counter"
+        tput rc
+        perl -e "select(undef,undef,undef,0.1)"
+        export _stopwatch_counter=$(echo "$_stopwatch_counter + 0.1" | bc)
+    done
+
+    echo "Received exit code.."
+    echo "Last status: $_stopwatch_counter"
+}
