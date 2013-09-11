@@ -1,0 +1,14 @@
+#!/bin/sh
+
+SRC="$1"
+DST="$2"
+
+for image in $(find "$SRC" -maxdepth 1 -type f)
+do
+    dst_image=$(echo "$image" | sed "s:$SRC:$DST:")
+
+    if [ ! -f "$dst_image" ]
+    then
+        convert -resize 300\> "$image" "$dst_image"
+    fi
+done
