@@ -1,0 +1,7 @@
+function git() {
+    GIT=/usr/bin/git
+    if [ "$1" != "commit" ]; then $GIT $@; return $?; fi
+    shift
+    $GIT commit -S $@
+    return $?
+}
