@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+if [ -z "$1" ]
+then
+    echo "Usage: narping <Network> [Interface]"
+    echo "Example: narping 192.168.1 eth1"
+    exit 255
+fi
+
+if [ "$(id -u)" != "0" ]
+then
+    echo "This script must be run as root" 1>&2
+    exit 1
+fi
+
+NET="$1"
+
+if [ ! -z "$2" ]
+then
+    IF=$2
+else
+    IF=eth0
+fi
+
+for i in {2..254}
+do
+	arping -D -I $IF -c2 $NET.$i >/dev/null
+	N=$?
+	if [ $N -eq 1 ]
+	then
+		echo "$NET.$i is OK"
+	elif [ $N -eq 0 ]
+	then
+		echo "$NET.$i is probably down"
+	else
+		echo "$NET.$i has problems. Status Code: $N"
+	fi
+done
