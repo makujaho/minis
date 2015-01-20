@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if [ -z "$1" ]
+then
+	echo "Usage: $0 program-name"
+	exit 1
+fi
+
+echo "Total RAM, number of processes, RAM per '$1' process: "
+ps aux | \
+	grep "$1" | \
+	awk '{sum+=$6; count+=1} END {print sum/1024"M, " count" processes, " sum/1024/count"M"};'
