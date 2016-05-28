@@ -1,0 +1,40 @@
+#!/bin/bash
+################################################################################
+#                                                                              #
+# Displays the last photo taken on an EOS camera connected to a linux          #
+# computer, e.g. a Raspberry Pi                                                #
+#                                                                              #
+# Uses gphotofs to mount and eog to display images on X                        #
+#                                                                              #
+################################################################################
+
+if [ $UID != 0 ]
+then
+	echo "forgot sudo!"
+	exit 1
+fi
+
+# RPi uses gvfs bs, kill that
+killall gvfs-gphoto2-volume-monitor
+killall gvfsd-gphoto2
+
+mkdir -p /mnt/photos
+
+old_file="none"
+while sleep 1;
+do
+	echo "MOunt"
+	umount /mnt/photos
+	gphotofs /mnt/photos
+	d=$(ls /mnt/photos/)
+	d1=$(ls /mnt/photos/$d/DCIM/)
+	file=$(ls -1 /mnt/photos/$d/DCIM/$d1/*.JPG | tail -n1)
+	if [ "$file" == "$old_file" ]
+	then
+		continue
+	fi
+	killall eog
+	old_file=$file
+	eog -f $file 2>/dev/null &
+	sleep 10
+done
